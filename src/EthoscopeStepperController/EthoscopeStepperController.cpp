@@ -17,7 +17,7 @@ EthoscopeStepperController::EthoscopeStepperController()
 void EthoscopeStepperController::setup()
 {
   // Parent Setup
-  Parent::setup();
+  StepDirController::setup();
 
   // Reset Watchdog
   resetWatchdog();
@@ -30,6 +30,8 @@ void EthoscopeStepperController::setup()
   // Add Hardware
 
   // Pins
+  pinMode(22,OUTPUT);
+  digitalWrite(22,LOW);
 
   // Add Firmware
   modular_server_.addFirmware(constants::firmware_info,
@@ -39,8 +41,33 @@ void EthoscopeStepperController::setup()
                               callbacks_);
 
   // Properties
+  modular_server::Property & channel_count_property = modular_server_.property(step_dir_controller::constants::channel_count_property_name);
+  channel_count_property.disableFunctors();
+  channel_count_property.setDefaultValue(constants::channel_count);
+  channel_count_property.setRange(constants::channel_count,constants::channel_count);
+  channel_count_property.reenableFunctors();
+
+  modular_server::Property & steps_per_position_units_property = modular_server_.property(step_dir_controller::constants::steps_per_position_units_property_name);
+  steps_per_position_units_property.setDefaultValue(constants::steps_per_position_units_default);
+  steps_per_position_units_property.setRange(constants::steps_per_position_units_min,constants::steps_per_position_units_max);
+
+  modular_server::Property & velocity_max_property = modular_server_.property(step_dir_controller::constants::velocity_max_property_name);
+  velocity_max_property.setDefaultValue(constants::velocity_max_default);
+  velocity_max_property.setRange(constants::velocity_max_min,constants::velocity_max_max);
+
+  modular_server::Property & velocity_min_property = modular_server_.property(step_dir_controller::constants::velocity_min_property_name);
+  velocity_min_property.setDefaultValue(constants::velocity_min_default);
+  velocity_min_property.setRange(constants::velocity_min_min,constants::velocity_min_max);
+
+  modular_server::Property & acceleration_max_property = modular_server_.property(step_dir_controller::constants::acceleration_max_property_name);
+  acceleration_max_property.setDefaultValue(constants::acceleration_max_default);
+  acceleration_max_property.setRange(constants::acceleration_max_min,constants::acceleration_max_max);
 
   // Parameters
+  modular_server::Parameter & velocity_parameter = modular_server_.parameter(step_dir_controller::constants::velocity_parameter_name);
+  velocity_parameter.setRange(constants::velocity_min_min,constants::velocity_max_max);
+
+  setChannelCountHandler();
 
   // Functions
 

@@ -16,12 +16,12 @@
 
 #include <ModularServer.h>
 #include <ModularDeviceBase.h>
-#include <Parent.h>
+#include <StepDirController.h>
 
 #include "EthoscopeStepperController/Constants.h"
 
 
-class EthoscopeStepperController : public Parent
+class EthoscopeStepperController : public StepDirController
 {
 public:
   EthoscopeStepperController();

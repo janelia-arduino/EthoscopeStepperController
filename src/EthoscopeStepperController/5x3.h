@@ -16,12 +16,21 @@ namespace ethoscope_stepper_controller
 {
 namespace constants
 {
+enum{CHANNEL_COUNT=7};
+
 // Pins
 
 // Units
 
 // Properties
 // Property values must be long, double, bool, long[], double[], bool[], char[], ConstantString *, (ConstantString *)[]
+extern const long steps_per_position_units_default[CHANNEL_COUNT];
+
+extern const long velocity_max_default[CHANNEL_COUNT];
+
+extern const long velocity_min_default[CHANNEL_COUNT];
+
+extern const long acceleration_max_default[CHANNEL_COUNT];
 
 // Parameters
 

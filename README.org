@@ -12,7 +12,7 @@
 
 ** Description
 
-   Modular device template library.
+   Modular device ethoscope stepper library.
 
 * API NAMES
 
@@ -29,15 +29,13 @@
 
   [[https://github.com/janelia-arduino/ModularDeviceBase]]
 
-  [[https://github.com/janelia-arduino/Parent]]
+  [[https://github.com/janelia-arduino/StepDirController]]
 
 * Clients
 
 * Devices
 
-  [[https://github.com/janelia-modular-devices/modular_device_base.git]]
-
-  [[https://github.com/janelia-modular-devices/device.git]]
+  [[https://github.com/janelia-modular-devices/ethoscope_stepper_controller.git]]
 
 * More Detailed Modular Device Information
 
