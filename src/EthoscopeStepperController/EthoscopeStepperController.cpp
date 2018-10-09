@@ -29,9 +29,9 @@ void EthoscopeStepperController::setup()
 
   // Add Hardware
 
+  pinMode(constants::sleep_pin,OUTPUT);
+
   // Pins
-  pinMode(22,OUTPUT);
-  digitalWrite(22,LOW);
 
   // Add Firmware
   modular_server_.addFirmware(constants::firmware_info,
@@ -72,6 +72,18 @@ void EthoscopeStepperController::setup()
   // Functions
 
   // Callbacks
+
+  wake();
+}
+
+void EthoscopeStepperController::sleep()
+{
+  digitalWrite(constants::sleep_pin,LOW);
+}
+
+void EthoscopeStepperController::wake()
+{
+  digitalWrite(constants::sleep_pin,HIGH);
 }
 
 // Handlers must be non-blocking (avoid 'delay')

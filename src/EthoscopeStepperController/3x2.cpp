@@ -16,6 +16,8 @@ namespace constants
 {
 const long channel_count = CHANNEL_COUNT;
 
+const size_t sleep_pin = 22;
+
 // Pins
 
 // Units

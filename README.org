@@ -35,7 +35,7 @@
 
 * Devices
 
-  [[https://github.com/janelia-modular-devices/ethoscope_stepper_controller.git]]
+  [[https://github.com/janelia-modular-devices/ethoscope_stepper_controller]]
 
 * More Detailed Modular Device Information
 

@@ -28,6 +28,8 @@ extern const modular_server::FirmwareInfo firmware_info;
 
 extern const long channel_count;
 
+extern const size_t sleep_pin;
+
 // Pins
 
 // Units
