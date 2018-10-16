@@ -35,10 +35,10 @@ void EthoscopeStepperController::setup()
 
   // Add Firmware
   modular_server_.addFirmware(constants::firmware_info,
-                              properties_,
-                              parameters_,
-                              functions_,
-                              callbacks_);
+    properties_,
+    parameters_,
+    functions_,
+    callbacks_);
 
   // Properties
   modular_server::Property & channel_count_property = modular_server_.property(step_dir_controller::constants::channel_count_property_name);
