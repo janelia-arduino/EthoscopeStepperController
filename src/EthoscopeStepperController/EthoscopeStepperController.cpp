@@ -70,6 +70,9 @@ void EthoscopeStepperController::setup()
   setChannelCountHandler();
 
   // Functions
+  modular_server::Function & move_all_at_function = modular_server_.createFunction(constants::move_all_at_function_name);
+  move_all_at_function.attachFunctor(makeFunctor((Functor0 *)0,*this,&EthoscopeStepperController::moveAllAtHandler));
+  move_all_at_function.addParameter(velocity_parameter);
 
   // Callbacks
 
@@ -84,6 +87,14 @@ void EthoscopeStepperController::sleep()
 void EthoscopeStepperController::wake()
 {
   digitalWrite(constants::sleep_pin,HIGH);
+}
+
+void EthoscopeStepperController::moveAllAt(long velocity)
+{
+  for (size_t channel=0; channel<getChannelCount(); ++channel)
+  {
+    moveAt(channel,velocity);
+  }
 }
 
 // Handlers must be non-blocking (avoid 'delay')
@@ -103,3 +114,10 @@ void EthoscopeStepperController::wake()
 // modular_server_.property(property_name).setValue(value) value type must match the property default type
 // modular_server_.property(property_name).getElementValue(element_index,value) value type must match the property array element default type
 // modular_server_.property(property_name).setElementValue(element_index,value) value type must match the property array element default type
+
+void EthoscopeStepperController::moveAllAtHandler()
+{
+  long velocity;
+  modular_server_.parameter(step_dir_controller::constants::velocity_parameter_name).getValue(velocity);
+  moveAllAt(velocity);
+}

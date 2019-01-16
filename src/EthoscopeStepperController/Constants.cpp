@@ -29,25 +29,26 @@ const modular_server::FirmwareInfo firmware_info =
 // Units
 
 // Properties
-const long steps_per_position_units_min = 3280;
-const long steps_per_position_units_max = 3280;
-const long steps_per_position_units_element_default = 3280;
+const long steps_per_position_units_min = 2048;
+const long steps_per_position_units_max = 2048;
+const long steps_per_position_units_element_default = 2048;
 
-const long velocity_max_min = 76;
-const long velocity_max_max = 76;
-const long velocity_max_element_default = 76;
+const long velocity_max_min = 10;
+const long velocity_max_max = 100;
+const long velocity_max_element_default = 32;
 
-const long velocity_min_min = 1;
-const long velocity_min_max = 20;
-const long velocity_min_element_default = 10;
+const long velocity_min_min = -100;
+const long velocity_min_max = -10;
+const long velocity_min_element_default = -32;
 
 const long acceleration_max_min = 10;
-const long acceleration_max_max = 76;
-const long acceleration_max_element_default = 76;
+const long acceleration_max_max = 100;
+const long acceleration_max_element_default = 10;
 
 // Parameters
 
 // Functions
+CONSTANT_STRING(move_all_at_function_name,"moveAllAt");
 
 // Callbacks
 

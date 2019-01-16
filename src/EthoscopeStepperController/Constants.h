@@ -55,6 +55,7 @@ extern const long acceleration_max_element_default;
 // Parameters
 
 // Functions
+extern ConstantString move_all_at_function_name;
 
 // Callbacks
 
