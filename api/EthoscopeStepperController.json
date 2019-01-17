@@ -1,0 +1,17 @@
+{
+  "id": "getApi",
+  "result": {
+    "firmware": [
+      "EthoscopeStepperController"
+    ],
+    "verbosity": "GENERAL",
+    "functions": [
+      {
+        "name": "moveAllAt",
+        "parameters": [
+          "velocity"
+        ]
+      }
+    ]
+  }
+}
