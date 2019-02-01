@@ -18,7 +18,7 @@ namespace constants
 //MAX values must be >= 1, >= created/copied count, < RAM limit
 enum{PROPERTY_COUNT_MAX=1};
 enum{PARAMETER_COUNT_MAX=1};
-enum{FUNCTION_COUNT_MAX=1};
+enum{FUNCTION_COUNT_MAX=2};
 enum{CALLBACK_COUNT_MAX=1};
 
 extern ConstantString device_name;
@@ -33,6 +33,10 @@ extern const size_t sleep_pin;
 // Pins
 
 // Units
+extern ConstantString degrees_units;
+extern ConstantString degrees_per_second_units;
+extern ConstantString degrees_per_second_per_second_units;
+extern ConstantString millisecond_units;
 
 // Properties
 // Property values must be long, double, bool, long[], double[], bool[], char[], ConstantString *, (ConstantString *)[]
@@ -53,10 +57,11 @@ extern const long acceleration_max_max;
 extern const long acceleration_max_element_default;
 
 // Parameters
+extern ConstantString duration_parameter_name;
 
 // Functions
 extern ConstantString move_all_at_function_name;
-
+extern ConstantString move_at_for_function_name;
 // Callbacks
 
 // Errors

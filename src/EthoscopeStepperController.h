@@ -14,6 +14,8 @@
 #include <ConstantVariable.h>
 #include <Functor.h>
 
+#include <EventController.h>
+
 #include <ModularServer.h>
 #include <ModularDeviceBase.h>
 #include <StepDirController.h>
@@ -31,6 +33,9 @@ public:
   void wake();
 
   void moveAllAt(long velocity);
+  void moveAtFor(size_t channel,
+    long velocity,
+    long duration);
 
 private:
   modular_server::Property properties_[ethoscope_stepper_controller::constants::PROPERTY_COUNT_MAX];
@@ -40,6 +45,7 @@ private:
 
   // Handlers
   void moveAllAtHandler();
+  void moveAtForHandler();
 
 };
 
