@@ -30,6 +30,7 @@ void EthoscopeStepperController::setup()
   // Add Hardware
 
   pinMode(constants::sleep_pin,OUTPUT);
+  sleep();
 
   // Pins
 
@@ -67,6 +68,8 @@ void EthoscopeStepperController::setup()
   acceleration_max_property.setRange(constants::acceleration_max_min,constants::acceleration_max_max);
 
   // Parameters
+  modular_server::Parameter & channel_parameter = modular_server_.parameter(step_dir_controller::constants::channel_parameter_name);
+
   modular_server::Parameter & position_parameter = modular_server_.parameter(step_dir_controller::constants::position_parameter_name);
   position_parameter.setUnits(constants::degrees_units);
 
@@ -93,6 +96,10 @@ void EthoscopeStepperController::setup()
   modular_server::Function & get_target_velocities_function = modular_server_.function(step_dir_controller::constants::get_target_velocities_function_name);
   get_target_velocities_function.setResultUnits(constants::degrees_per_second_units);
 
+  modular_server::Function & sleeping_function = modular_server_.createFunction(constants::sleeping_function_name);
+  sleeping_function.attachFunctor(makeFunctor((Functor0 *)0,*this,&EthoscopeStepperController::sleepingHandler));
+  sleeping_function.setResultTypeBool();
+
   modular_server::Function & move_all_at_function = modular_server_.createFunction(constants::move_all_at_function_name);
   move_all_at_function.attachFunctor(makeFunctor((Functor0 *)0,*this,&EthoscopeStepperController::moveAllAtHandler));
   move_all_at_function.addParameter(velocity_parameter);
@@ -104,18 +111,29 @@ void EthoscopeStepperController::setup()
   move_at_for_function.addParameter(duration_parameter);
 
   // Callbacks
+  modular_server::Callback & wake_callback = modular_server_.createCallback(constants::wake_callback_name);
+  wake_callback.attachFunctor(makeFunctor((Functor1<modular_server::Pin *> *)0,*this,&EthoscopeStepperController::wakeHandler));
 
-  wake();
-}
+  modular_server::Callback & sleep_callback = modular_server_.createCallback(constants::sleep_callback_name);
+  sleep_callback.attachFunctor(makeFunctor((Functor1<modular_server::Pin *> *)0,*this,&EthoscopeStepperController::sleepHandler));
 
-void EthoscopeStepperController::sleep()
-{
-  digitalWrite(constants::sleep_pin,LOW);
 }
 
 void EthoscopeStepperController::wake()
 {
   digitalWrite(constants::sleep_pin,HIGH);
+  sleeping_ = false;
+}
+
+void EthoscopeStepperController::sleep()
+{
+  digitalWrite(constants::sleep_pin,LOW);
+  sleeping_ = true;
+}
+
+bool EthoscopeStepperController::sleeping()
+{
+  return sleeping_;
 }
 
 void EthoscopeStepperController::moveAllAt(long velocity)
@@ -126,7 +144,7 @@ void EthoscopeStepperController::moveAllAt(long velocity)
   }
 }
 
-void StepDirController::moveAtFor(size_t channel,
+void EthoscopeStepperController::moveAtFor(size_t channel,
   long velocity,
   long duration)
 {
@@ -153,9 +171,28 @@ void StepDirController::moveAtFor(size_t channel,
 // modular_server_.property(property_name).getElementValue(element_index,value) value type must match the property array element default type
 // modular_server_.property(property_name).setElementValue(element_index,value) value type must match the property array element default type
 
+void EthoscopeStepperController::sleepingHandler()
+{
+  modular_server_.response().returnResult(sleeping());
+}
+
 void EthoscopeStepperController::moveAllAtHandler()
 {
   long velocity;
   modular_server_.parameter(step_dir_controller::constants::velocity_parameter_name).getValue(velocity);
   moveAllAt(velocity);
+}
+
+void EthoscopeStepperController::moveAtForHandler()
+{
+}
+
+void EthoscopeStepperController::wakeHandler(modular_server::Pin * pin_ptr)
+{
+  wake();
+}
+
+void EthoscopeStepperController::sleepHandler(modular_server::Pin * pin_ptr)
+{
+  sleep();
 }

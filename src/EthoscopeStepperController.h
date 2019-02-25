@@ -29,8 +29,9 @@ public:
   EthoscopeStepperController();
   virtual void setup();
 
-  void sleep();
   void wake();
+  void sleep();
+  bool sleeping();
 
   void moveAllAt(long velocity);
   void moveAtFor(size_t channel,
@@ -43,9 +44,14 @@ private:
   modular_server::Function functions_[ethoscope_stepper_controller::constants::FUNCTION_COUNT_MAX];
   modular_server::Callback callbacks_[ethoscope_stepper_controller::constants::CALLBACK_COUNT_MAX];
 
+  bool sleeping_;
+
   // Handlers
+  void sleepingHandler();
   void moveAllAtHandler();
   void moveAtForHandler();
+  void wakeHandler(modular_server::Pin * pin_ptr);
+  void sleepHandler(modular_server::Pin * pin_ptr);
 
 };
 

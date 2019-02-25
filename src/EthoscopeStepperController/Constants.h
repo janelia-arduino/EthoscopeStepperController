@@ -18,8 +18,8 @@ namespace constants
 //MAX values must be >= 1, >= created/copied count, < RAM limit
 enum{PROPERTY_COUNT_MAX=1};
 enum{PARAMETER_COUNT_MAX=1};
-enum{FUNCTION_COUNT_MAX=2};
-enum{CALLBACK_COUNT_MAX=1};
+enum{FUNCTION_COUNT_MAX=3};
+enum{CALLBACK_COUNT_MAX=2};
 
 extern ConstantString device_name;
 
@@ -60,9 +60,13 @@ extern const long acceleration_max_element_default;
 extern ConstantString duration_parameter_name;
 
 // Functions
+extern ConstantString sleeping_function_name;
 extern ConstantString move_all_at_function_name;
 extern ConstantString move_at_for_function_name;
+
 // Callbacks
+extern ConstantString wake_callback_name;
+extern ConstantString sleep_callback_name;
 
 // Errors
 }
