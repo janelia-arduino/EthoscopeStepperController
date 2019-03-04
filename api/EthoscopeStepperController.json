@@ -1,0 +1,101 @@
+{
+  "id": "getApi",
+  "result": {
+    "firmware": [
+      "EthoscopeStepperController"
+    ],
+    "verbosity": "GENERAL",
+    "functions": [
+      {
+        "name": "allSleeping",
+        "result_info": {
+          "type": "bool"
+        }
+      },
+      {
+        "name": "moveAllAt",
+        "parameters": [
+          "velocity"
+        ]
+      },
+      {
+        "name": "moveAtFor",
+        "parameters": [
+          "channel",
+          "velocity",
+          "duration"
+        ]
+      }
+    ],
+    "parameters": [
+      {
+        "name": "duration",
+        "type": "long"
+      }
+    ],
+    "callbacks": [
+      {
+        "name": "wakeAll",
+        "functions": [
+          {
+            "name": "trigger"
+          },
+          {
+            "name": "attachTo",
+            "parameters": [
+              "pin_name",
+              "pin_mode"
+            ]
+          },
+          {
+            "name": "detachFrom",
+            "parameters": [
+              "pin_name"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "name": "pin_name",
+            "type": "string"
+          },
+          {
+            "name": "pin_mode",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "name": "sleepAll",
+        "functions": [
+          {
+            "name": "trigger"
+          },
+          {
+            "name": "attachTo",
+            "parameters": [
+              "pin_name",
+              "pin_mode"
+            ]
+          },
+          {
+            "name": "detachFrom",
+            "parameters": [
+              "pin_name"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "name": "pin_name",
+            "type": "string"
+          },
+          {
+            "name": "pin_mode",
+            "type": "string"
+          }
+        ]
+      }
+    ]
+  }
+}
