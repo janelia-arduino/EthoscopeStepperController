@@ -39,7 +39,9 @@ public:
   void moveAllAt(long velocity);
   void moveAtFor(size_t channel,
     long velocity,
-    long duration);
+    long duration_ms,
+    long acceleration,
+    long deceleration);
 
 private:
   modular_server::Property properties_[ethoscope_stepper_controller::constants::PROPERTY_COUNT_MAX];
@@ -52,11 +54,14 @@ private:
   EventController<ethoscope_stepper_controller::constants::EVENT_COUNT_MAX> event_controller_;
   EventId event_ids_[ethoscope_stepper_controller::constants::CHANNEL_COUNT];
 
+  long deceleration_[ethoscope_stepper_controller::constants::CHANNEL_COUNT];
+
   // Handlers
   void allSleepingHandler();
   void moveAllAtHandler();
   void moveAtForHandler();
   void stopEventHandler(int channel);
+  void restoreEventHandler(int channel);
   void wakeAllHandler(modular_server::Pin * pin_ptr);
   void sleepAllHandler(modular_server::Pin * pin_ptr);
 

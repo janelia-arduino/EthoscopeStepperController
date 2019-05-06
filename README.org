@@ -4,7 +4,7 @@
 
 * Library Information
   - Name :: EthoscopeStepperController
-  - Version :: 1.1.0
+  - Version :: 1.2.0
   - License :: BSD
   - URL :: https://github.com/janelia-arduino/EthoscopeStepperController
   - Author :: Peter Polidoro
@@ -17,27 +17,7 @@
 * API NAMES
 
   #+BEGIN_SRC js
-    {
-      "id": "getApi",
-      "result": {
-        "firmware": [
-          "EthoscopeStepperController"
-        ],
-        "verbosity": "NAMES",
-        "functions": [
-          "allSleeping",
-          "moveAllAt",
-          "moveAtFor"
-        ],
-        "parameters": [
-          "duration"
-        ],
-        "callbacks": [
-          "wakeAll",
-          "sleepAll"
-        ]
-      }
-    }
+
   #+END_SRC
 
 * API GENERAL

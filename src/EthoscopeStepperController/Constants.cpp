@@ -20,9 +20,12 @@ const modular_server::FirmwareInfo firmware_info =
 {
   .name_ptr=&firmware_name,
   .version_major=1,
-  .version_minor=1,
+  .version_minor=2,
   .version_patch=0,
 };
+
+const long milliseconds_per_second = 1000;
+const long velocity_min_limit = 1;
 
 // Pins
 
@@ -54,6 +57,10 @@ const long acceleration_max_element_default = 180;
 CONSTANT_STRING(duration_parameter_name,"duration");
 const long duration_min = 10;
 const long duration_max = 2147483647;
+
+CONSTANT_STRING(acceleration_parameter_name,"acceleration");
+
+CONSTANT_STRING(deceleration_parameter_name,"deceleration");
 
 // Functions
 CONSTANT_STRING(all_sleeping_function_name,"allSleeping");

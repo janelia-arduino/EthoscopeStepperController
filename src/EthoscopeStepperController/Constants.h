@@ -17,7 +17,7 @@ namespace constants
 {
 //MAX values must be >= 1, >= created/copied count, < RAM limit
 enum{PROPERTY_COUNT_MAX=1};
-enum{PARAMETER_COUNT_MAX=1};
+enum{PARAMETER_COUNT_MAX=3};
 enum{FUNCTION_COUNT_MAX=3};
 enum{CALLBACK_COUNT_MAX=2};
 
@@ -31,6 +31,9 @@ extern const modular_server::FirmwareInfo firmware_info;
 extern const long channel_count;
 
 extern const size_t sleep_pin;
+
+extern const long milliseconds_per_second;
+extern const long velocity_min_limit;
 
 // Pins
 
@@ -62,6 +65,10 @@ extern const long acceleration_max_element_default;
 extern ConstantString duration_parameter_name;
 extern const long duration_min;
 extern const long duration_max;
+
+extern ConstantString acceleration_parameter_name;
+
+extern ConstantString deceleration_parameter_name;
 
 // Functions
 extern ConstantString all_sleeping_function_name;

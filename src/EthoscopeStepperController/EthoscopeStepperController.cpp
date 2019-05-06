@@ -26,6 +26,10 @@ void EthoscopeStepperController::setup()
   event_controller_.setup();
 
   // Variable Setup
+  for (size_t channel=0; channel<constants::CHANNEL_COUNT; ++channel)
+  {
+    deceleration_[channel] = constants::acceleration_max_min;
+  }
 
   // Set Device ID
   modular_server_.setDeviceName(constants::device_name);
@@ -85,6 +89,16 @@ void EthoscopeStepperController::setup()
   duration_parameter.setRange(constants::duration_min,constants::duration_max);
   duration_parameter.setTypeLong();
 
+  modular_server::Parameter & acceleration_parameter = modular_server_.createParameter(constants::acceleration_parameter_name);
+  acceleration_parameter.setUnits(constants::degrees_per_second_per_second_units);
+  acceleration_parameter.setRange(constants::acceleration_max_min,constants::acceleration_max_max);
+  acceleration_parameter.setTypeLong();
+
+  modular_server::Parameter & deceleration_parameter = modular_server_.createParameter(constants::deceleration_parameter_name);
+  deceleration_parameter.setUnits(constants::degrees_per_second_per_second_units);
+  deceleration_parameter.setRange(constants::acceleration_max_min,constants::acceleration_max_max);
+  deceleration_parameter.setTypeLong();
+
   setChannelCountHandler();
 
   // Functions
@@ -113,6 +127,8 @@ void EthoscopeStepperController::setup()
   move_at_for_function.addParameter(channel_parameter);
   move_at_for_function.addParameter(velocity_parameter);
   move_at_for_function.addParameter(duration_parameter);
+  move_at_for_function.addParameter(acceleration_parameter);
+  move_at_for_function.addParameter(deceleration_parameter);
 
   // Callbacks
   modular_server::Callback & wake_all_callback = modular_server_.createCallback(constants::wake_all_callback_name);
@@ -168,13 +184,33 @@ void EthoscopeStepperController::moveAllAt(long velocity)
 
 void EthoscopeStepperController::moveAtFor(size_t channel,
   long velocity,
-  long duration)
+  long duration_ms,
+  long acceleration,
+  long deceleration)
 {
-  if ((channel < getChannelCount()) && (duration > 0))
+  if ((channel < getChannelCount()) && (duration_ms > 0))
   {
+    if (acceleration < constants::acceleration_max_min)
+    {
+      acceleration = constants::acceleration_max_min;
+    }
+    if (deceleration < constants::acceleration_max_min)
+    {
+      deceleration = constants::acceleration_max_min;
+    }
+
+    long acceleration_duration_ms = (velocity * constants::milliseconds_per_second) / acceleration;
+    long deceleration_duration_ms = (velocity * constants::milliseconds_per_second) / deceleration;
+    long event_delay_ms = duration_ms - deceleration_duration_ms;
+    if (duration_ms < (acceleration_duration_ms + deceleration_duration_ms))
+    {
+      event_delay_ms = (duration_ms * acceleration_duration_ms) / (acceleration_duration_ms + deceleration_duration_ms);
+    }
     event_ids_[channel] = event_controller_.addEventUsingDelay(makeFunctor((Functor1<int> *)0,*this,&EthoscopeStepperController::stopEventHandler),
-      duration,
+      event_delay_ms,
       channel);
+    temporarilySetLimits(channel,constants::velocity_min_limit,constants::velocity_max_max,acceleration);
+    deceleration_[channel] = deceleration;
     moveAt(channel,velocity);
     event_controller_.enable(event_ids_[channel]);
   }
@@ -222,14 +258,35 @@ void EthoscopeStepperController::moveAtForHandler()
   long duration;
   modular_server_.parameter(constants::duration_parameter_name).getValue(duration);
 
+  long acceleration;
+  modular_server_.parameter(constants::acceleration_parameter_name).getValue(acceleration);
+
+  long deceleration;
+  modular_server_.parameter(constants::deceleration_parameter_name).getValue(deceleration);
+
   moveAtFor(channel,
     velocity,
-    duration);
+    duration,
+    acceleration,
+    deceleration);
 }
 
 void EthoscopeStepperController::stopEventHandler(int channel)
 {
+  long deceleration = deceleration_[channel];
+  temporarilySetLimits(channel,constants::velocity_min_limit,constants::velocity_max_max,deceleration);
   StepDirController::stop(channel);
+  long velocity = getVelocity(channel);
+  long event_delay = (velocity / deceleration) * constants::milliseconds_per_second;
+  event_ids_[channel] = event_controller_.addEventUsingDelay(makeFunctor((Functor1<int> *)0,*this,&EthoscopeStepperController::restoreEventHandler),
+    event_delay,
+    channel);
+  event_controller_.enable(event_ids_[channel]);
+}
+
+void EthoscopeStepperController::restoreEventHandler(int channel)
+{
+  restoreLimits(channel);
 }
 
 void EthoscopeStepperController::wakeAllHandler(modular_server::Pin * pin_ptr)
