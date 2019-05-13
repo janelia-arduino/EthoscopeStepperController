@@ -17,7 +17,29 @@
 * API NAMES
 
   #+BEGIN_SRC js
-
+    {
+      "id": "getApi",
+      "result": {
+        "firmware": [
+          "EthoscopeStepperController"
+        ],
+        "verbosity": "NAMES",
+        "functions": [
+          "allSleeping",
+          "moveAllAt",
+          "moveAtFor"
+        ],
+        "parameters": [
+          "duration",
+          "acceleration",
+          "deceleration"
+        ],
+        "callbacks": [
+          "wakeAll",
+          "sleepAll"
+        ]
+      }
+    }
   #+END_SRC
 
 * API GENERAL

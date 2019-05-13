@@ -33,7 +33,6 @@ extern const long channel_count;
 extern const size_t sleep_pin;
 
 extern const long milliseconds_per_second;
-extern const long velocity_min_limit;
 
 // Pins
 

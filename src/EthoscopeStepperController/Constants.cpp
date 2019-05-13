@@ -25,7 +25,6 @@ const modular_server::FirmwareInfo firmware_info =
 };
 
 const long milliseconds_per_second = 1000;
-const long velocity_min_limit = 1;
 
 // Pins
 
@@ -42,16 +41,16 @@ const long steps_per_position_units_max = 91;
 const long steps_per_position_units_element_default = 91;
 
 const long velocity_max_min = 10;
-const long velocity_max_max = 2520;
-const long velocity_max_element_default = 360;
+const long velocity_max_max = 800;
+const long velocity_max_element_default = 720;
 
-const long velocity_min_min = -2520;
-const long velocity_min_max = -10;
-const long velocity_min_element_default = -360;
+const long velocity_min_min = 0;
+const long velocity_min_max = 0;
+const long velocity_min_element_default = 0;
 
 const long acceleration_max_min = 10;
-const long acceleration_max_max = 2520;
-const long acceleration_max_element_default = 180;
+const long acceleration_max_max = 800;
+const long acceleration_max_element_default = 720;
 
 // Parameters
 CONSTANT_STRING(duration_parameter_name,"duration");

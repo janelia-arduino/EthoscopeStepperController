@@ -55,6 +55,7 @@ private:
   EventId event_ids_[ethoscope_stepper_controller::constants::CHANNEL_COUNT];
 
   long deceleration_[ethoscope_stepper_controller::constants::CHANNEL_COUNT];
+  long deceleration_velocity_[ethoscope_stepper_controller::constants::CHANNEL_COUNT];
 
   // Handlers
   void allSleepingHandler();
