@@ -279,7 +279,7 @@ void EthoscopeStepperController::stopEventHandler(int channel)
   long velocity = deceleration_velocity_[channel];
   temporarilySetLimits(channel,constants::velocity_min_min,velocity,deceleration);
   StepDirController::stop(channel);
-  long event_delay = (velocity / deceleration) * constants::milliseconds_per_second;
+  long event_delay = (velocity * constants::milliseconds_per_second) / deceleration;
   event_ids_[channel] = event_controller_.addEventUsingDelay(makeFunctor((Functor1<int> *)0,*this,&EthoscopeStepperController::restoreEventHandler),
     event_delay,
     channel);
@@ -288,7 +288,17 @@ void EthoscopeStepperController::stopEventHandler(int channel)
 
 void EthoscopeStepperController::restoreEventHandler(int channel)
 {
-  restoreLimits(channel);
+  if (atTargetVelocity(channel))
+  {
+    restoreLimits(channel);
+  }
+  else
+  {
+    event_ids_[channel] = event_controller_.addEventUsingDelay(makeFunctor((Functor1<int> *)0,*this,&EthoscopeStepperController::restoreEventHandler),
+      constants::restore_event_delay,
+      channel);
+    event_controller_.enable(event_ids_[channel]);
+  }
 }
 
 void EthoscopeStepperController::wakeAllHandler(modular_server::Pin * pin_ptr)

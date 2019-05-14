@@ -4,7 +4,7 @@
 
 * Library Information
   - Name :: EthoscopeStepperController
-  - Version :: 1.2.0
+  - Version :: 1.2.1
   - License :: BSD
   - URL :: https://github.com/janelia-arduino/EthoscopeStepperController
   - Author :: Peter Polidoro

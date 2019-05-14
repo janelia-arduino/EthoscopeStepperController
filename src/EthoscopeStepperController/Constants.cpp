@@ -21,10 +21,12 @@ const modular_server::FirmwareInfo firmware_info =
   .name_ptr=&firmware_name,
   .version_major=1,
   .version_minor=2,
-  .version_patch=0,
+  .version_patch=1,
 };
 
 const long milliseconds_per_second = 1000;
+
+const long restore_event_delay = 10;
 
 // Pins
 
