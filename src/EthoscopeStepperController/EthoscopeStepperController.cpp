@@ -142,10 +142,11 @@ void EthoscopeStepperController::setup()
 
 void EthoscopeStepperController::stop(size_t channel)
 {
-  if (channel < getChannelCount())
+  if (channel >= getChannelCount())
   {
-    event_controller_.remove(event_ids_[channel]);
+    return;
   }
+  event_controller_.remove(event_ids_[channel]);
   StepDirController::stop(channel);
 }
 
@@ -189,33 +190,38 @@ void EthoscopeStepperController::moveAtFor(size_t channel,
   long acceleration,
   long deceleration)
 {
-  if ((channel < getChannelCount()) && (duration_ms > 0))
+  if ((channel >= getChannelCount()) || (duration_ms <= 0))
   {
-    if (acceleration < constants::acceleration_max_min)
-    {
-      acceleration = constants::acceleration_max_min;
-    }
-    if (deceleration < constants::acceleration_max_min)
-    {
-      deceleration = constants::acceleration_max_min;
-    }
-
-    long acceleration_duration_ms = (velocity * constants::milliseconds_per_second) / acceleration;
-    long deceleration_duration_ms = (velocity * constants::milliseconds_per_second) / deceleration;
-    long event_delay_ms = duration_ms - deceleration_duration_ms;
-    deceleration_[channel] = deceleration;
-    deceleration_velocity_[channel] = velocity;
-    if (duration_ms < (acceleration_duration_ms + deceleration_duration_ms))
-    {
-      event_delay_ms = (duration_ms * acceleration_duration_ms) / (acceleration_duration_ms + deceleration_duration_ms);
-    }
-    event_ids_[channel] = event_controller_.addEventUsingDelay(makeFunctor((Functor1<int> *)0,*this,&EthoscopeStepperController::stopEventHandler),
-      event_delay_ms,
-      channel);
-    temporarilySetLimits(channel,constants::velocity_min_min,velocity,acceleration);
-    moveAt(channel,velocity);
-    event_controller_.enable(event_ids_[channel]);
+    return;
   }
+  long acceleration_upper_limit = getAccelerationUpperLimit(channel,velocity);
+  if (acceleration_upper_limit > constants::acceleration_max_max)
+  {
+    acceleration_upper_limit = constants::acceleration_max_max;
+  }
+  long acceleration_lower_limit = getAccelerationLowerLimit(channel,velocity);
+  if (acceleration_lower_limit < constants::acceleration_max_min)
+  {
+    acceleration_lower_limit = constants::acceleration_max_min;
+  }
+  acceleration = constrain(acceleration,acceleration_lower_limit,acceleration_upper_limit);
+  deceleration = constrain(deceleration,acceleration_lower_limit,acceleration_upper_limit);
+
+  long acceleration_duration_ms = (velocity * constants::milliseconds_per_second) / acceleration;
+  long deceleration_duration_ms = (velocity * constants::milliseconds_per_second) / deceleration;
+  long event_delay_ms = duration_ms - deceleration_duration_ms;
+  deceleration_[channel] = deceleration;
+  deceleration_velocity_[channel] = velocity;
+  if (duration_ms < (acceleration_duration_ms + deceleration_duration_ms))
+  {
+    event_delay_ms = (duration_ms * acceleration_duration_ms) / (acceleration_duration_ms + deceleration_duration_ms);
+  }
+  event_ids_[channel] = event_controller_.addEventUsingDelay(makeFunctor((Functor1<int> *)0,*this,&EthoscopeStepperController::stopEventHandler),
+    event_delay_ms,
+    channel);
+  temporarilySetLimits(channel,constants::velocity_min_min,velocity,acceleration);
+  moveAt(channel,velocity);
+  event_controller_.enable(event_ids_[channel]);
 }
 
 // Handlers must be non-blocking (avoid 'delay')
