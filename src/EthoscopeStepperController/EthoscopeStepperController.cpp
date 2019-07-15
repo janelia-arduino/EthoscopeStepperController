@@ -100,6 +100,9 @@ void EthoscopeStepperController::setup()
   deceleration_parameter.setRange(constants::acceleration_max_min,constants::acceleration_max_max);
   deceleration_parameter.setTypeLong();
 
+  modular_server::Parameter & count_parameter = modular_server_.createParameter(constants::count_parameter_name);
+  count_parameter.setTypeLong();
+
   setChannelCountHandler();
 
   // Functions
@@ -130,6 +133,24 @@ void EthoscopeStepperController::setup()
   move_at_for_function.addParameter(duration_parameter);
   move_at_for_function.addParameter(acceleration_parameter);
   move_at_for_function.addParameter(deceleration_parameter);
+
+  modular_server::Function & oscillate_function = modular_server_.createFunction(constants::oscillate_function_name);
+  oscillate_function.attachFunctor(makeFunctor((Functor0 *)0,*this,&EthoscopeStepperController::oscillateHandler));
+  oscillate_function.addParameter(channel_parameter);
+  oscillate_function.addParameter(velocity_parameter);
+  oscillate_function.addParameter(duration_parameter);
+  oscillate_function.addParameter(acceleration_parameter);
+  oscillate_function.addParameter(deceleration_parameter);
+  oscillate_function.addParameter(count_parameter);
+
+  modular_server::Function & oscillate_all_function = modular_server_.createFunction(constants::oscillate_all_function_name);
+  oscillate_all_function.attachFunctor(makeFunctor((Functor0 *)0,*this,&EthoscopeStepperController::oscillateAllHandler));
+  oscillate_all_function.addParameter(channel_parameter);
+  oscillate_all_function.addParameter(velocity_parameter);
+  oscillate_all_function.addParameter(duration_parameter);
+  oscillate_all_function.addParameter(acceleration_parameter);
+  oscillate_all_function.addParameter(deceleration_parameter);
+  oscillate_all_function.addParameter(count_parameter);
 
   // Callbacks
   modular_server::Callback & wake_all_callback = modular_server_.createCallback(constants::wake_all_callback_name);
@@ -277,6 +298,58 @@ void EthoscopeStepperController::moveAtForHandler()
     duration,
     acceleration,
     deceleration);
+}
+
+void EthoscopeStepperController::oscillateHandler()
+{
+  long channel;
+  modular_server_.parameter(step_dir_controller::constants::channel_parameter_name).getValue(channel);
+
+  long velocity;
+  modular_server_.parameter(step_dir_controller::constants::velocity_parameter_name).getValue(velocity);
+
+  long duration;
+  modular_server_.parameter(constants::duration_parameter_name).getValue(duration);
+
+  long acceleration;
+  modular_server_.parameter(constants::acceleration_parameter_name).getValue(acceleration);
+
+  long deceleration;
+  modular_server_.parameter(constants::deceleration_parameter_name).getValue(deceleration);
+
+  long count;
+  modular_server_.parameter(constants::count_parameter_name).getValue(count);
+
+  oscillate(channel,
+    velocity,
+    duration,
+    acceleration,
+    deceleration,
+    count);
+}
+
+void EthoscopeStepperController::oscillateAllHandler()
+{
+  long velocity;
+  modular_server_.parameter(step_dir_controller::constants::velocity_parameter_name).getValue(velocity);
+
+  long duration;
+  modular_server_.parameter(constants::duration_parameter_name).getValue(duration);
+
+  long acceleration;
+  modular_server_.parameter(constants::acceleration_parameter_name).getValue(acceleration);
+
+  long deceleration;
+  modular_server_.parameter(constants::deceleration_parameter_name).getValue(deceleration);
+
+  long count;
+  modular_server_.parameter(constants::count_parameter_name).getValue(count);
+
+  oscillateAll(velocity,
+    duration,
+    acceleration,
+    deceleration,
+    count);
 }
 
 void EthoscopeStepperController::stopEventHandler(int channel)

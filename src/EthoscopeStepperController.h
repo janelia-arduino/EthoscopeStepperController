@@ -43,6 +43,18 @@ public:
     long acceleration,
     long deceleration);
 
+  void oscillate(size_t channel,
+    long velocity,
+    long duration_ms,
+    long acceleration,
+    long deceleration,
+    long count);
+  void oscillateAll(long velocity,
+    long duration_ms,
+    long acceleration,
+    long deceleration,
+    long count);
+
 private:
   modular_server::Property properties_[ethoscope_stepper_controller::constants::PROPERTY_COUNT_MAX];
   modular_server::Parameter parameters_[ethoscope_stepper_controller::constants::PARAMETER_COUNT_MAX];
@@ -61,6 +73,8 @@ private:
   void allSleepingHandler();
   void moveAllAtHandler();
   void moveAtForHandler();
+  void oscillateHandler();
+  void oscillateAllHandler();
   void stopEventHandler(int channel);
   void restoreEventHandler(int channel);
   void wakeAllHandler(modular_server::Pin * pin_ptr);
