@@ -30,6 +30,8 @@ void EthoscopeStepperController::setup()
   {
     deceleration_[channel] = constants::acceleration_max_min;
     deceleration_velocity_[channel] = constants::velocity_max_max;
+    oscillate_info_[channel].move_count = 0;
+    oscillate_info_[channel].move_count_inc = 0;
   }
 
   // Set Device ID
@@ -101,7 +103,7 @@ void EthoscopeStepperController::setup()
   deceleration_parameter.setTypeLong();
 
   modular_server::Parameter & count_parameter = modular_server_.createParameter(constants::count_parameter_name);
-  count_parameter.setTypeLong();
+  count_parameter.setRange(constants::count_min,constants::count_max);
 
   setChannelCountHandler();
 
@@ -143,15 +145,6 @@ void EthoscopeStepperController::setup()
   oscillate_function.addParameter(deceleration_parameter);
   oscillate_function.addParameter(count_parameter);
 
-  modular_server::Function & oscillate_all_function = modular_server_.createFunction(constants::oscillate_all_function_name);
-  oscillate_all_function.attachFunctor(makeFunctor((Functor0 *)0,*this,&EthoscopeStepperController::oscillateAllHandler));
-  oscillate_all_function.addParameter(channel_parameter);
-  oscillate_all_function.addParameter(velocity_parameter);
-  oscillate_all_function.addParameter(duration_parameter);
-  oscillate_all_function.addParameter(acceleration_parameter);
-  oscillate_all_function.addParameter(deceleration_parameter);
-  oscillate_all_function.addParameter(count_parameter);
-
   // Callbacks
   modular_server::Callback & wake_all_callback = modular_server_.createCallback(constants::wake_all_callback_name);
   wake_all_callback.attachFunctor(makeFunctor((Functor1<modular_server::Pin *> *)0,*this,&EthoscopeStepperController::wakeAllHandler));
@@ -167,17 +160,18 @@ void EthoscopeStepperController::stop(size_t channel)
   {
     return;
   }
-  event_controller_.remove(event_ids_[channel]);
+  event_controller_.remove(move_event_ids_[channel]);
   StepDirController::stop(channel);
+  oscillate_info_[channel].move_count = 0;
+  oscillate_info_[channel].move_count_inc = 0;
 }
 
 void EthoscopeStepperController::stopAll()
 {
   for (size_t channel=0; channel<getChannelCount(); ++channel)
   {
-    event_controller_.remove(event_ids_[channel]);
+    stop(channel);
   }
-  StepDirController::stopAll();
 }
 
 void EthoscopeStepperController::wakeAll()
@@ -228,8 +222,8 @@ void EthoscopeStepperController::moveAtFor(size_t channel,
   acceleration = constrain(acceleration,acceleration_lower_limit,acceleration_upper_limit);
   deceleration = constrain(deceleration,acceleration_lower_limit,acceleration_upper_limit);
 
-  long acceleration_duration_ms = (velocity * constants::milliseconds_per_second) / acceleration;
-  long deceleration_duration_ms = (velocity * constants::milliseconds_per_second) / deceleration;
+  long acceleration_duration_ms = abs(velocity * constants::milliseconds_per_second) / acceleration;
+  long deceleration_duration_ms = abs(velocity * constants::milliseconds_per_second) / deceleration;
   long event_delay_ms = duration_ms - deceleration_duration_ms;
   deceleration_[channel] = deceleration;
   deceleration_velocity_[channel] = velocity;
@@ -237,12 +231,38 @@ void EthoscopeStepperController::moveAtFor(size_t channel,
   {
     event_delay_ms = (duration_ms * acceleration_duration_ms) / (acceleration_duration_ms + deceleration_duration_ms);
   }
-  event_ids_[channel] = event_controller_.addEventUsingDelay(makeFunctor((Functor1<int> *)0,*this,&EthoscopeStepperController::stopEventHandler),
+  // event_controller_.remove(move_event_ids_[channel]);
+  // StepDirController::stop(channel);
+  move_event_ids_[channel] = event_controller_.addEventUsingDelay(makeFunctor((Functor1<int> *)0,*this,&EthoscopeStepperController::stopMoveHandler),
     event_delay_ms,
     channel);
   temporarilySetLimits(channel,constants::velocity_min_min,velocity,acceleration);
   moveAt(channel,velocity);
-  event_controller_.enable(event_ids_[channel]);
+  event_controller_.enable(move_event_ids_[channel]);
+}
+
+void EthoscopeStepperController::oscillate(size_t channel,
+  long velocity,
+  long duration_ms,
+  long acceleration,
+  long deceleration,
+  long count)
+{
+  if ((channel >= getChannelCount()) ||
+    (duration_ms <= 0) ||
+    (count < constants::count_min) ||
+    (count > constants::count_max))
+  {
+    return;
+  }
+  oscillate_info_[channel].move_count = count * 2;
+  oscillate_info_[channel].move_count_inc = 1;
+  oscillate_info_[channel].velocity = velocity;
+  oscillate_info_[channel].duration = duration_ms;
+  oscillate_info_[channel].acceleration = acceleration;
+  oscillate_info_[channel].deceleration = deceleration;
+
+  moveAtFor(channel,velocity,duration_ms,acceleration,deceleration);
 }
 
 // Handlers must be non-blocking (avoid 'delay')
@@ -328,55 +348,50 @@ void EthoscopeStepperController::oscillateHandler()
     count);
 }
 
-void EthoscopeStepperController::oscillateAllHandler()
-{
-  long velocity;
-  modular_server_.parameter(step_dir_controller::constants::velocity_parameter_name).getValue(velocity);
-
-  long duration;
-  modular_server_.parameter(constants::duration_parameter_name).getValue(duration);
-
-  long acceleration;
-  modular_server_.parameter(constants::acceleration_parameter_name).getValue(acceleration);
-
-  long deceleration;
-  modular_server_.parameter(constants::deceleration_parameter_name).getValue(deceleration);
-
-  long count;
-  modular_server_.parameter(constants::count_parameter_name).getValue(count);
-
-  oscillateAll(velocity,
-    duration,
-    acceleration,
-    deceleration,
-    count);
-}
-
-void EthoscopeStepperController::stopEventHandler(int channel)
+void EthoscopeStepperController::stopMoveHandler(int channel)
 {
   long deceleration = deceleration_[channel];
   long velocity = deceleration_velocity_[channel];
   temporarilySetLimits(channel,constants::velocity_min_min,velocity,deceleration);
   StepDirController::stop(channel);
-  long event_delay = (velocity * constants::milliseconds_per_second) / deceleration;
-  event_ids_[channel] = event_controller_.addEventUsingDelay(makeFunctor((Functor1<int> *)0,*this,&EthoscopeStepperController::restoreEventHandler),
+  long event_delay = abs(velocity * constants::milliseconds_per_second) / deceleration;
+  move_event_ids_[channel] = event_controller_.addEventUsingDelay(makeFunctor((Functor1<int> *)0,*this,&EthoscopeStepperController::finishMoveHandler),
     event_delay,
     channel);
-  event_controller_.enable(event_ids_[channel]);
+  event_controller_.enable(move_event_ids_[channel]);
 }
 
-void EthoscopeStepperController::restoreEventHandler(int channel)
+void EthoscopeStepperController::finishMoveHandler(int channel)
 {
   if (atTargetVelocity(channel))
   {
     restoreLimits(channel);
+    if (oscillate_info_[channel].move_count_inc < oscillate_info_[channel].move_count)
+    {
+      long direction = 1;
+      if ((oscillate_info_[channel].move_count_inc % 2) != 0)
+      {
+        direction = -1;
+      }
+      ++oscillate_info_[channel].move_count_inc;
+      moveAtFor(channel,
+        (direction * oscillate_info_[channel].velocity),
+        oscillate_info_[channel].duration,
+        oscillate_info_[channel].acceleration,
+        oscillate_info_[channel].deceleration);
+    }
+    else
+    {
+      oscillate_info_[channel].move_count = 0;
+      oscillate_info_[channel].move_count_inc = 0;
+    }
   }
   else
   {
-    event_ids_[channel] = event_controller_.addEventUsingDelay(makeFunctor((Functor1<int> *)0,*this,&EthoscopeStepperController::restoreEventHandler),
-      constants::restore_event_delay,
+    move_event_ids_[channel] = event_controller_.addEventUsingDelay(makeFunctor((Functor1<int> *)0,*this,&EthoscopeStepperController::finishMoveHandler),
+      constants::finish_move_delay,
       channel);
-    event_controller_.enable(event_ids_[channel]);
+    event_controller_.enable(move_event_ids_[channel]);
   }
 }
 

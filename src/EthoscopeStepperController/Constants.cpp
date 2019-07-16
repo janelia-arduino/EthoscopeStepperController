@@ -26,7 +26,7 @@ const modular_server::FirmwareInfo firmware_info =
 
 const long milliseconds_per_second = 1000;
 
-const long restore_event_delay = 10;
+const long finish_move_delay = 10;
 
 // Pins
 
@@ -64,13 +64,14 @@ CONSTANT_STRING(acceleration_parameter_name,"acceleration");
 CONSTANT_STRING(deceleration_parameter_name,"deceleration");
 
 CONSTANT_STRING(count_parameter_name,"count");
+const long count_min = 1;
+const long count_max = 255;
 
 // Functions
 CONSTANT_STRING(all_sleeping_function_name,"allSleeping");
 CONSTANT_STRING(move_all_at_function_name,"moveAllAt");
 CONSTANT_STRING(move_at_for_function_name,"moveAtFor");
 CONSTANT_STRING(oscillate_function_name,"oscillate");
-CONSTANT_STRING(oscillate_all_function_name,"oscillateAll");
 
 // Callbacks
 CONSTANT_STRING(wake_all_callback_name,"wakeAll");

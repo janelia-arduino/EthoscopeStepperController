@@ -49,11 +49,6 @@ public:
     long acceleration,
     long deceleration,
     long count);
-  void oscillateAll(long velocity,
-    long duration_ms,
-    long acceleration,
-    long deceleration,
-    long count);
 
 private:
   modular_server::Property properties_[ethoscope_stepper_controller::constants::PROPERTY_COUNT_MAX];
@@ -64,10 +59,12 @@ private:
   bool all_sleeping_;
 
   EventController<ethoscope_stepper_controller::constants::EVENT_COUNT_MAX> event_controller_;
-  EventId event_ids_[ethoscope_stepper_controller::constants::CHANNEL_COUNT];
+  EventId move_event_ids_[ethoscope_stepper_controller::constants::CHANNEL_COUNT];
 
   long deceleration_[ethoscope_stepper_controller::constants::CHANNEL_COUNT];
   long deceleration_velocity_[ethoscope_stepper_controller::constants::CHANNEL_COUNT];
+
+  ethoscope_stepper_controller::constants::OscillateInfo oscillate_info_[ethoscope_stepper_controller::constants::CHANNEL_COUNT];
 
   // Handlers
   void allSleepingHandler();
@@ -75,8 +72,8 @@ private:
   void moveAtForHandler();
   void oscillateHandler();
   void oscillateAllHandler();
-  void stopEventHandler(int channel);
-  void restoreEventHandler(int channel);
+  void stopMoveHandler(int channel);
+  void finishMoveHandler(int channel);
   void wakeAllHandler(modular_server::Pin * pin_ptr);
   void sleepAllHandler(modular_server::Pin * pin_ptr);
 
