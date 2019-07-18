@@ -21,7 +21,7 @@ const modular_server::FirmwareInfo firmware_info =
   .name_ptr=&firmware_name,
   .version_major=1,
   .version_minor=3,
-  .version_patch=0,
+  .version_patch=1,
 };
 
 const long milliseconds_per_second = 1000;
@@ -43,7 +43,7 @@ const long steps_per_position_units_max = 91;
 const long steps_per_position_units_element_default = 91;
 
 const long velocity_max_min = 10;
-const long velocity_max_max = 800;
+const long velocity_max_max = 1800;
 const long velocity_max_element_default = 720;
 
 const long velocity_min_min = 0;
