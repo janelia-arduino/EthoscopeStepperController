@@ -3,7 +3,7 @@
 //
 //
 // Authors:
-// Peter Polidoro peterpolidoro@gmail.com
+// Peter Polidoro peter@polidoro.io
 // ----------------------------------------------------------------------------
 #ifndef ETHOSCOPE_STEPPER_CONTROLLER_5X3_CONSTANTS_H
 #define ETHOSCOPE_STEPPER_CONTROLLER_5X3_CONSTANTS_H
